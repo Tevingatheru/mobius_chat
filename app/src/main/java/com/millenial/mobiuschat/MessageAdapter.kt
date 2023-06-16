@@ -1,6 +1,5 @@
 package com.millenial.mobiuschat
 
-import android.R
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +7,19 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-
-class MessageAdapter(private val mContext: Context, messageList: List<Message>) :
-    RecyclerView.Adapter<Any?>() {
+class MessageAdapter(messageList: List<Message>, context: Context) :
+    RecyclerView.Adapter<ViewHolder?>() {
     private val VIEW_TYPE_MESSAGE_SENT = 1
     private val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
     private val mMessageList: List<Message>
+    private val mContext: Context
 
     init {
         mMessageList = messageList
+        mContext = context
     }
 
     override fun getItemCount(): Int {
@@ -28,7 +29,8 @@ class MessageAdapter(private val mContext: Context, messageList: List<Message>) 
     // Determines the appropriate ViewType according to the sender of the message.
     override fun getItemViewType(position: Int): Int {
         val message: Message = mMessageList[position]
-        return if (message.sender?.id?.equals(Mobius.getCurrentUser()?.id?)) {
+
+        return if (message.sender.id?.equals(Mobius.getCurrentUser().id) == true) {
             // If the current user is the sender of the message
             VIEW_TYPE_MESSAGE_SENT
         } else {
@@ -38,27 +40,25 @@ class MessageAdapter(private val mContext: Context, messageList: List<Message>) 
     }
 
     // Inflates the appropriate layout according to the ViewType.
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view: View
         if (viewType == VIEW_TYPE_MESSAGE_SENT) {
             view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_message_sent, parent, false)
+                .inflate(R.layout.send_message, parent, false)
             return SentMessageHolder(view)
         } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED) {
             view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_message_received, parent, false)
-            return ReceivedMessageHolder(view)
+                .inflate(R.layout.recieve_message, parent, false)
+            return ReceivedMessageHolder(view, mContext)
         }
-        return null
-    }
-
-    override fun onBindViewHolder(holder: Any, position: Int) {
-        TODO("Not yet implemented")
+        view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.recieve_message, parent, false)
+        return ReceivedMessageHolder(view, mContext)
     }
 
     // Passes the message object to a ViewHolder so that the contents can be bound to UI.
-    fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val message: UserMessage = mMessageList[position] as UserMessage
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val message: Message = mMessageList[position] as Message
         when (holder.itemViewType) {
             VIEW_TYPE_MESSAGE_SENT -> (holder as SentMessageHolder).bind(message)
             VIEW_TYPE_MESSAGE_RECEIVED -> (holder as ReceivedMessageHolder).bind(message)
@@ -71,19 +71,19 @@ class MessageAdapter(private val mContext: Context, messageList: List<Message>) 
         var timeText: TextView
 
         init {
-            messageText = itemView.findViewById<View>(R.id.text_message_body) as TextView
-            timeText = itemView.findViewById<View>(R.id.text_message_time) as TextView
+            messageText = itemView.findViewById<View>(R.id.text_gchat_message_me) as TextView
+            timeText = itemView.findViewById<View>(R.id.text_gchat_timestamp_me) as TextView
         }
 
-        fun bind(message: UserMessage) {
-            messageText.setText(message.getMessage())
+        fun bind(message: Message) {
+            messageText.setText(message.message)
 
             // Format the stored timestamp into a readable String using method.
-            timeText.setText(Utils.formatDateTime(message.getCreatedAt()))
+            timeText.setText(Utils.formatDateTime(message.createdTime))
         }
     }
 
-    private class ReceivedMessageHolder internal constructor(itemView: View) :
+    private class ReceivedMessageHolder internal constructor(itemView: View, val mContext: Context) :
         RecyclerView.ViewHolder(itemView) {
         var messageText: TextView
         var timeText: TextView
@@ -91,23 +91,24 @@ class MessageAdapter(private val mContext: Context, messageList: List<Message>) 
         var profileImage: ImageView
 
         init {
-            messageText = itemView.findViewById<View>(R.id.text_message_body) as TextView
-            timeText = itemView.findViewById<View>(R.id.text_message_time) as TextView
-            nameText = itemView.findViewById<View>(R.id.text_message_name) as TextView
-            profileImage = itemView.findViewById<View>(R.id.image_message_profile) as ImageView
+            messageText = itemView.findViewById<View>(R.id.text_gchat_user_other) as TextView
+            timeText = itemView.findViewById<View>(R.id.text_gchat_timestamp_other) as TextView
+            nameText = itemView.findViewById<View>(R.id.text_gchat_message_other) as TextView
+            profileImage = itemView.findViewById<View>(R.id.image_gchat_profile_other) as ImageView
         }
 
-        fun bind(message: UserMessage) {
-            messageText.setText(message.getMessage())
+        fun bind(message: Message) {
+            messageText.setText(message.message)
 
             // Format the stored timestamp into a readable String using method.
-            timeText.setText(Utils.formatDateTime(message.getCreatedAt()))
-            nameText.setText(message.getSender().getNickname())
+            timeText.setText(Utils.formatDateTime(message.createdTime))
+            nameText.setText(message.sender!!.nickname)
 
             // Insert the profile image from the URL into the ImageView.
+
             Utils.displayRoundImageFromUrl(
                 mContext,
-                message.getSender().getProfileUrl(),
+                message.sender!!.profileUrl,
                 profileImage
             )
         }
