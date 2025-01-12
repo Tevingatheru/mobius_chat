@@ -29,9 +29,11 @@ class ChatActivity : AppCompatActivity() {
             Log.d("Button Click", "Clicked")
             val sendMessageHolder = findViewById<TextView>(R.id.edit_gchat_message)
             val newMessage = Message(sendMessageHolder?.text.toString(), Mobius.getCurrentUser(), System.currentTimeMillis())
+            val aiHandler: AiHandler = AiHandler()
 
-            val aiHandler: AiHandler  =  AiHandler()
-            runBlocking { aiHandler.prompt(newMessage.message) }
+            runBlocking {
+                aiHandler.prompt(newMessage.message)
+            }
 
             messageList.add(newMessage)
             mMessageAdapter?.notifyItemInserted(messageList.size - 1)
