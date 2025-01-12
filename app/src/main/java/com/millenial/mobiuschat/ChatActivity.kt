@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
 
 class ChatActivity : AppCompatActivity() {
     private var mMessageRecycler: RecyclerView? = null
@@ -29,14 +30,17 @@ class ChatActivity : AppCompatActivity() {
             Log.d("Button Click", "Clicked")
             val sendMessageHolder = findViewById<TextView>(R.id.edit_gchat_message)
             val newMessage = Message(sendMessageHolder?.text.toString(), Mobius.getCurrentUser(), System.currentTimeMillis())
-            val aiHandler: AiHandler = AiHandler()
+            addMessageToDisplay(newMessage)
 
             runBlocking {
-                aiHandler.prompt(newMessage.message)
+                val response = AiHandler().prompt(newMessage.message)
+                addMessageToDisplay(Message(message = response, sender = Mobius.getCurrentUser(), createdTime = System.currentTimeMillis( )))
             }
-
-            messageList.add(newMessage)
-            mMessageAdapter?.notifyItemInserted(messageList.size - 1)
         }
+    }
+
+    private fun addMessageToDisplay(newMessage: Message) {
+        messageList.add(newMessage)
+        mMessageAdapter?.notifyItemInserted(messageList.size - 1)
     }
 }
