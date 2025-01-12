@@ -23,18 +23,20 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        android:id="@+id/linear_message_display"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+        app:layout_constraintBottom_toTopOf="@+id/layout_gchat_chatbox">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_chat"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="572dp"
             android:layout_marginBottom="1dp"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@+id/text_gchat_indicator"
@@ -77,7 +79,6 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:layout_marginStart="3dp"
             android:layout_toStartOf="@+id/button_gchat_send"
             android:height="48dp"

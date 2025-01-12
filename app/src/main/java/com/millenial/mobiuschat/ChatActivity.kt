@@ -22,7 +22,7 @@ class ChatActivity : AppCompatActivity() {
         mMessageRecycler = findViewById<RecyclerView>(R.id.recycler_chat)
         mMessageAdapter = MessageAdapter(messageList, this)
 
-        mMessageRecycler!!.setLayoutManager(LinearLayoutManager(this))
+        mMessageRecycler!!.setLayoutManager(LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true))
         mMessageRecycler!!.setAdapter(mMessageAdapter)
 
         val button = findViewById<Button>(R.id.button_gchat_send)
@@ -31,6 +31,7 @@ class ChatActivity : AppCompatActivity() {
             val sendMessageHolder = findViewById<TextView>(R.id.edit_gchat_message)
             val newMessage = Message(sendMessageHolder?.text.toString(), Mobius.getCurrentUser(), System.currentTimeMillis())
             addMessageToDisplay(newMessage)
+            sendMessageHolder.text = ""
 
             runBlocking {
                 val response = AiHandler().prompt(newMessage.message)
